@@ -11,6 +11,12 @@ export class UsersService {
     @InjectModel('user') private userModel: Model<User>
   ){}
 
+  async addIsActiveFieldToUsers(defaultValue = true) {
+    await this.userModel.updateMany(
+      { isActive: { $exists: false } },
+      { $set: { isActive: defaultValue } }
+    );
+  }
   async create({age, email, fullName}: CreateUserDto) {
     const isAdult = age >= 18 
     const existUser = await this.userModel.findOne({email})
@@ -50,6 +56,19 @@ export class UsersService {
     return user
   }
 
+
+  async getStatisticsByGender() {
+    return this.userModel.aggregate([
+      {
+        $group: {
+          _id: '$gender',
+          avgAge: { $avg: '$age' },
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+  }
+  
   remove(id: number) {
     return `This action removes a #${id} user`;
   }

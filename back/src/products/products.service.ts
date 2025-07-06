@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -50,7 +50,7 @@ export class ProductsService {
   async findAll({name, priceFrom, priceTo, isStock, page, take}: QueryParamsDto) {
     const category = 'gela'
     const filter: any = {}
-    //{price: {$gte: 20, $lte: 50}}
+
     if(name){
       filter.name = {'$regex': name, '$options': 'i'}
     }
@@ -73,15 +73,34 @@ export class ProductsService {
     return products
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: string) {
+    const user = await this.productModel.findById(id);
+    if (!user) {
+      throw new NotFoundException('not found user by this Id ');
+    }
+    return user;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+
+
+
+  async update(id: string, productModel: UpdateProductDto) {
+    const updatedUser = await this.productModel.findByIdAndUpdate(
+      id,
+      UpdateProductDto,
+      { new: true },
+    );
+    if (!updatedUser) {
+      throw new NotFoundException('not update');
+    }
+    return updatedUser;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: string) {
+    const deletedUser = await this.productModel.findByIdAndDelete(id);
+    if (!deletedUser) {
+      throw new BadRequestException('not del');
+    }
+    return { message: 'user dilate sucs!' };
   }
 }
