@@ -14,17 +14,6 @@ export class PostsService {
     @InjectModel('user') private userModel: Model<User>,
   ){}
 
-  // async onModuleInit() {
-  //   const posts: any = []
-  //   for(let i = 0; i < 100; i++){
-  //     posts.push({
-  //       title: `title ${i}`,
-  //       desc: `Desc ${i}`,
-  //       author: '685ec641b2fa3c02d871082f'
-  //     })
-  //   }
-  //   await this.postModel.insertMany(posts)
-  // }
 
 
   async create({desc, title}: CreatePostDto, userId: string) {
@@ -33,8 +22,7 @@ export class PostsService {
 
     const newPost = await this.postModel.create({title, desc, author: existUser._id})
     await this.userModel.findByIdAndUpdate(existUser._id, {$push: {posts: newPost._id}})
-    // existUser.posts.push(newPost._id)
-    // await existUser.save()
+ 
 
     return {success: 'ok', data: newPost}
   }

@@ -29,5 +29,5 @@ export class CreateUserDto {
     age: number
 
     @IsOptional()
-    address: Address
+    address?: Address
 }
